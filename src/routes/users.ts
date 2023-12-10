@@ -23,7 +23,15 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
     const sortOptions = await getFilters(req.query);
 
-    const users = await User.find().sort(sortOptions);
+    // Pagination data
+    const page = parseInt(req.query.page as string) || 1; // Default page number is 1
+    const pageSize = parseInt(req.query.pageSize as string) || 10; // Default page size is 10
+    const skip = (page - 1) * pageSize;
+
+    const users = await User.find()
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(pageSize);
 
     res.send(users);
   } catch (error: any) {
