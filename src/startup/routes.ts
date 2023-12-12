@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import authRouter from "../routes/auth";
 import usersRouter from "../routes/users";
 import entriesRouter from "../routes/entries";
+import commentsRouter from "../routes/comments";
 import errorMiddleware from "../middleware/error";
 
 export default function setupRoutes(app: Express): void {
@@ -13,5 +14,6 @@ export default function setupRoutes(app: Express): void {
   app.use("/api/auth", authRouter);
   app.use("/api/users", usersRouter);
   app.use("/api/entries", entriesRouter);
+  app.use("/api/comments", commentsRouter);
   app.use(errorMiddleware);
 }
