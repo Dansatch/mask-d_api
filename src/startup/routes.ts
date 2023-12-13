@@ -5,6 +5,7 @@ import authRouter from "../routes/auth";
 import usersRouter from "../routes/users";
 import entriesRouter from "../routes/entries";
 import commentsRouter from "../routes/comments";
+import notificationsRouter from "../routes/notifications";
 import errorMiddleware from "../middleware/error";
 
 export default function setupRoutes(app: Express): void {
@@ -15,5 +16,6 @@ export default function setupRoutes(app: Express): void {
   app.use("/api/users", usersRouter);
   app.use("/api/entries", entriesRouter);
   app.use("/api/comments", commentsRouter);
+  app.use("/api/notifications", notificationsRouter);
   app.use(errorMiddleware);
 }
