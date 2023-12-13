@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import mongoose, { FilterQuery } from "mongoose";
-import Entry, { IEntry, validateEntry } from "../models/entry";
+import Entry, { IEntry, validateEntry } from "../models/Entry";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateEntryRights from "../middleware/validateEntryRights";
 

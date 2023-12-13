@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
-import Comment, { IComment, validateComment } from "../models/comment";
+import Comment, { IComment, validateComment } from "../models/Comment";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateCommentRights from "../middleware/validateCommentRights";
 

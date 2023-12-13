@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import Joi from "joi";
-import User from "../models/user";
+import User from "../models/User";
 
 const router = express.Router();
 

@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import Notification, {
   INotification,
   validateNotification,
-} from "../models/notification";
+} from "../models/Notification";
 import auth, { AuthRequest } from "../middleware/auth";
 
 const router = express.Router();

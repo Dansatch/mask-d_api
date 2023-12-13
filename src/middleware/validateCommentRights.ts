@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import Comment, { IComment } from "../models/comment";
+import Comment, { IComment } from "../models/Comment";
 import { AuthRequest } from "./auth";
 
 // Could pass the found entry object to request for increased efficiency

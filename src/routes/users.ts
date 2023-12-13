@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import _ from "lodash";
 
-import User, { IUser, validateUser } from "../models/user";
+import User, { IUser, validateUser } from "../models/User";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateObjectId from "../middleware/validateObjectId";
 
