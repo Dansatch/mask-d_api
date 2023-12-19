@@ -40,21 +40,25 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Get to get user data from id or username
-router.get("/:id", [auth], async (req: AuthRequest, res: Response) => {
-  try {
-    let user: IUser | null;
+router.get(
+  "/:id",
+  [auth, validateObjectId],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      let user: IUser | null;
 
-    if (mongoose.Types.ObjectId.isValid(req.params.id))
-      user = await User.findById(req.params.id);
-    else user = await User.findOne({ username: req.params.id });
+      if (mongoose.Types.ObjectId.isValid(req.params.id))
+        user = await User.findById(req.params.id);
+      else user = await User.findOne({ username: req.params.id });
 
-    if (!user) return res.status(404).send("The user was not found.");
+      if (!user) return res.status(404).send("The user was not found.");
 
-    res.send(user);
-  } catch (error: any) {
-    res.status(500).send(error.message);
+      res.send(user);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 // Post to save a user
 router.post("/", async (req: Request, res: Response) => {

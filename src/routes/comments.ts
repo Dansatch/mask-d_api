@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Comment, { IComment, validateComment } from "../models/Comment";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateCommentRights from "../middleware/validateCommentRights";
+import validateObjectId from "../middleware/validateObjectId";
 
 const router = express.Router();
 
@@ -73,47 +74,55 @@ router.put(
 );
 
 // PUT route to like a comment
-router.put("/:id/like", auth, async (req: AuthRequest, res: Response) => {
-  try {
-    const comment: IComment | null = await Comment.findById(req.params.id);
-    if (!comment) return res.status(404).send("Comment not found");
+router.put(
+  "/:id/like",
+  [auth, validateObjectId],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const comment: IComment | null = await Comment.findById(req.params.id);
+      if (!comment) return res.status(404).send("Comment not found");
 
-    const userId = new mongoose.Types.ObjectId(req.user?._id);
+      const userId = new mongoose.Types.ObjectId(req.user?._id);
 
-    if (!comment.likes.includes(userId)) {
-      comment.likes.push(userId);
-      await comment.save();
-    } else {
-      return res.status(400).send("Comment is already liked");
+      if (!comment.likes.includes(userId)) {
+        comment.likes.push(userId);
+        await comment.save();
+      } else {
+        return res.status(400).send("Comment is already liked");
+      }
+
+      res.status(200).send(comment);
+    } catch (error: any) {
+      res.status(500).send(error.message);
     }
-
-    res.status(200).send(comment);
-  } catch (error: any) {
-    res.status(500).send(error.message);
   }
-});
+);
 
 // PUT route to unlike a comment
-router.put("/:id/unlike", auth, async (req: AuthRequest, res: Response) => {
-  try {
-    const comment: IComment | null = await Comment.findById(req.params.id);
-    if (!comment) return res.status(404).send("Comment not found");
+router.put(
+  "/:id/unlike",
+  [auth, validateObjectId],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const comment: IComment | null = await Comment.findById(req.params.id);
+      if (!comment) return res.status(404).send("Comment not found");
 
-    const userId = new mongoose.Types.ObjectId(req.user?._id);
+      const userId = new mongoose.Types.ObjectId(req.user?._id);
 
-    const index = comment.likes.indexOf(userId);
-    if (index > -1) {
-      comment.likes.splice(index, 1);
-      await comment.save();
-    } else {
-      return res.status(400).send("Comment isn't liked");
+      const index = comment.likes.indexOf(userId);
+      if (index > -1) {
+        comment.likes.splice(index, 1);
+        await comment.save();
+      } else {
+        return res.status(400).send("Comment isn't liked");
+      }
+
+      res.status(200).json(comment);
+    } catch (error: any) {
+      res.status(500).send(error.message);
     }
-
-    res.status(200).json(comment);
-  } catch (error: any) {
-    res.status(500).send(error.message);
   }
-});
+);
 
 // DELETE to delete a comment
 router.delete(

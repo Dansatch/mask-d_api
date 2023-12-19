@@ -3,6 +3,7 @@ import mongoose, { FilterQuery } from "mongoose";
 import Entry, { IEntry, validateEntry } from "../models/Entry";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateEntryRights from "../middleware/validateEntryRights";
+import validateObjectId from "../middleware/validateObjectId";
 
 const router = express.Router();
 
@@ -71,16 +72,20 @@ router.get("/", auth, async (req: Request, res: Response) => {
 });
 
 // GET route to get an entry
-router.get("/:id", auth, async (req: Request, res: Response) => {
-  try {
-    const entry: IEntry | null = await Entry.findById(req.params.id);
-    if (!entry) return res.status(404).send("Entry not found");
+router.get(
+  "/:id",
+  [auth, validateObjectId],
+  async (req: Request, res: Response) => {
+    try {
+      const entry: IEntry | null = await Entry.findById(req.params.id);
+      if (!entry) return res.status(404).send("Entry not found");
 
-    res.send(entry);
-  } catch (error: any) {
-    res.status(500).send(error.message);
+      res.send(entry);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 // POST route to create an entry
 router.post("/", auth, async (req: AuthRequest, res: Response) => {
@@ -130,52 +135,60 @@ router.put(
 );
 
 // PUT route to like an entry by its ID
-router.put("/:id/like", auth, async (req: AuthRequest, res: Response) => {
-  try {
-    const entry: IEntry | null = await Entry.findById(req.params.id);
-    if (!entry) return res.status(404).send("Entry not found");
+router.put(
+  "/:id/like",
+  [auth, validateObjectId],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const entry: IEntry | null = await Entry.findById(req.params.id);
+      if (!entry) return res.status(404).send("Entry not found");
 
-    const userId = new mongoose.Types.ObjectId(req.user?._id);
+      const userId = new mongoose.Types.ObjectId(req.user?._id);
 
-    if (!entry.likes.includes(userId)) {
-      entry.likes.push(userId);
-      await entry.save();
-    } else {
-      return res.status(400).send("Entry is already liked");
+      if (!entry.likes.includes(userId)) {
+        entry.likes.push(userId);
+        await entry.save();
+      } else {
+        return res.status(400).send("Entry is already liked");
+      }
+
+      res.status(200).send(entry);
+    } catch (error: any) {
+      res.status(500).send(error.message);
     }
-
-    res.status(200).send(entry);
-  } catch (error: any) {
-    res.status(500).send(error.message);
   }
-});
+);
 
 // PUT route to unlike an entry by its ID
-router.put("/:id/unlike", auth, async (req: AuthRequest, res: Response) => {
-  try {
-    const entry: IEntry | null = await Entry.findById(req.params.id);
-    if (!entry) return res.status(404).send("Entry not found");
+router.put(
+  "/:id/unlike",
+  [auth, validateObjectId],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const entry: IEntry | null = await Entry.findById(req.params.id);
+      if (!entry) return res.status(404).send("Entry not found");
 
-    const userId = new mongoose.Types.ObjectId(req.user?._id);
+      const userId = new mongoose.Types.ObjectId(req.user?._id);
 
-    const index = entry.likes.indexOf(userId);
-    if (index > -1) {
-      entry.likes.splice(index, 1);
-      await entry.save();
-    } else {
-      return res.status(400).send("Entry isn't liked");
+      const index = entry.likes.indexOf(userId);
+      if (index > -1) {
+        entry.likes.splice(index, 1);
+        await entry.save();
+      } else {
+        return res.status(400).send("Entry isn't liked");
+      }
+
+      res.status(200).json(entry);
+    } catch (error: any) {
+      res.status(500).send(error.message);
     }
-
-    res.status(200).json(entry);
-  } catch (error: any) {
-    res.status(500).send(error.message);
   }
-});
+);
 
 // DELETE route to delete an entry
 router.delete(
   "/:id",
-  [auth, validateEntryRights],
+  [auth, validateObjectId, validateEntryRights],
   async (req: Request, res: Response) => {
     try {
       const entry = await Entry.findByIdAndDelete(req.params.id);
