@@ -4,7 +4,7 @@ import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 export interface IEntry extends Document {
   title: string;
   text: string;
-  userId: ObjectId;
+  userId: mongoose.Types.ObjectId;
   commentDisabled: boolean;
   timestamp: Date;
   likes: mongoose.Types.ObjectId[];
