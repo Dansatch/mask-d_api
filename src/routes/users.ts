@@ -40,25 +40,21 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Get to get user data from id or username
-router.get(
-  "/:id",
-  [auth, validateObjectId],
-  async (req: AuthRequest, res: Response) => {
-    try {
-      let user: IUser | null;
+router.get("/:id", [auth], async (req: AuthRequest, res: Response) => {
+  try {
+    let user: IUser | null;
 
-      if (mongoose.Types.ObjectId.isValid(req.params.id))
-        user = await User.findById(req.params.id);
-      else user = await User.findOne({ username: req.params.id });
+    if (mongoose.Types.ObjectId.isValid(req.params.id))
+      user = await User.findById(req.params.id);
+    else user = await User.where({ username: req.params.id }).findOne();
 
-      if (!user) return res.status(404).send("The user was not found.");
+    if (!user) return res.status(404).send("The user was not found.");
 
-      res.send(user);
-    } catch (error: any) {
-      res.status(500).send(error.message);
-    }
+    res.send(user);
+  } catch (error: any) {
+    res.status(500).send(error.message);
   }
-);
+});
 
 // Post to save a user
 router.post("/", async (req: Request, res: Response) => {
@@ -68,8 +64,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Check if username exists
     const existingUser = await User.findOne({ username: req.body.username });
-    if (existingUser)
-      return res.status(400).send("User with email already exists.");
+    if (existingUser) return res.status(400).send("Username already exists.");
 
     // Create new user
     const newUser: IUser = new User(_.pick(req.body, ["username", "password"]));
@@ -198,6 +193,12 @@ router.delete(
       // Find the user in the database
       const user: IUser | null = await User.findById(req.user?._id);
       if (!user) return res.status(404).send("User not found");
+
+      const validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+      if (!validPassword) return res.status(400).send("Invalid password");
 
       // Delete the user account
       await User.findByIdAndDelete(req.user?._id);

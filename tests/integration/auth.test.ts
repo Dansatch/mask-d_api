@@ -1,4 +1,4 @@
-const config = require("config");
+import config from "config";
 import request from "supertest";
 import { Server } from "http";
 import jwt from "jsonwebtoken";
