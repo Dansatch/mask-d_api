@@ -9,9 +9,7 @@ async function validateCommentRights(
   next: NextFunction
 ) {
   try {
-    const comment: IComment | null = await Comment.findById(
-      req.params.commentId
-    );
+    const comment: IComment | null = await Comment.findById(req.params.id);
     if (!comment) return res.status(404).send("Comment not found");
 
     const isCreator: boolean =

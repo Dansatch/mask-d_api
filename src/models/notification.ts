@@ -1,9 +1,11 @@
 import Joi from "joi";
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export type NotificationType = "newEntry" | "followAlert" | "other";
+
 export interface INotification extends Document {
   recipientId: mongoose.Types.ObjectId;
-  type: "newEntry" | "followAlert" | "other";
+  type: NotificationType;
   message: string;
   relatedUsername: string;
   timestamp: Date;

@@ -6,6 +6,7 @@ import _ from "lodash";
 import User, { IUser, validateUser } from "../models/User";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateObjectId from "../middleware/validateObjectId";
+import Entry from "../models/Entry";
 
 const router = express.Router();
 
@@ -202,6 +203,8 @@ router.delete(
 
       // Delete the user account
       await User.findByIdAndDelete(req.user?._id);
+
+      await Entry.deleteMany({ userId: req.user?._id });
 
       res.status(200).send("User account deleted successfully");
     } catch (error: any) {

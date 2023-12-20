@@ -8,8 +8,11 @@ import validateObjectId from "../middleware/validateObjectId";
 const router = express.Router();
 
 // Get to get all comments under an entry
-router.get("/:entryId", auth, async (req: Request, res: Response) => {
+router.get("/:entryId", [auth], async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.entryId))
+      return res.status(400).send("Invalid entry ID.");
+
     const comments: IComment[] = await Comment.find({
       entryId: req.params.entryId,
     }).sort({ likes: -1 });
@@ -20,7 +23,7 @@ router.get("/:entryId", auth, async (req: Request, res: Response) => {
 });
 
 // GET to get commentCount
-router.get("/:entryId/count", async (req: Request, res: Response) => {
+router.get("/:entryId/count", auth, async (req: Request, res: Response) => {
   try {
     const commentCount: number = await Comment.countDocuments({
       entryId: req.params.entryId,
@@ -53,17 +56,16 @@ router.post("/", auth, async (req: AuthRequest, res: Response) => {
 
 // PUT to update a comment
 router.put(
-  "/:commentId",
-  [auth, validateCommentRights],
+  "/:id",
+  [auth, validateObjectId, validateCommentRights],
   async (req: Request, res: Response) => {
     try {
       const { text } = req.body;
       const comment = await Comment.findByIdAndUpdate(
-        req.params.commentId,
+        req.params.id,
         { $set: { text } },
         { new: true }
       );
-
       if (!comment) return res.status(404).send("Comment not found");
 
       res.send(comment);
@@ -126,12 +128,12 @@ router.put(
 
 // DELETE to delete a comment
 router.delete(
-  "/:commentId",
-  [auth, validateCommentRights],
+  "/:id",
+  [auth, validateObjectId, validateCommentRights],
   async (req: Request, res: Response) => {
     try {
       const comment = await Comment.findOneAndDelete({
-        _id: req.params.commentId,
+        _id: req.params.id,
       });
       if (!comment) return res.status(404).send("Comment not found");
 

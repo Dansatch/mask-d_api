@@ -1,27 +1,38 @@
 import express, { Request, Response } from "express";
+import { FilterQuery } from "mongoose";
 import Notification, {
   INotification,
+  NotificationType,
   validateNotification,
 } from "../models/Notification";
 import auth, { AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
 
+// GET query interface
+interface RequestQuery {
+  type?: NotificationType;
+}
+
 // GET route to get all notifications for a particular user with type filter
-router.get("/", auth, async (req: AuthRequest, res: Response) => {
-  try {
-    const recipientId = req.user?._id;
-    const { type } = req.query;
+router.get(
+  "/",
+  auth,
+  async (req: AuthRequest & { query: RequestQuery }, res: Response) => {
+    try {
+      const recipientId = req.user?._id;
+      const { type } = req.query;
 
-    const query: any = { recipientId };
-    if (type) query.type = type;
+      const query: FilterQuery<INotification> = { recipientId };
+      if (type) query.type = type;
 
-    const notifications: INotification[] = await Notification.find(query);
-    res.send(notifications);
-  } catch (error: any) {
-    res.status(500).send(error.message);
+      const notifications: INotification[] = await Notification.find(query);
+      res.send(notifications);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 // POST route to create a notification
 router.post("/", async (req: Request, res: Response) => {

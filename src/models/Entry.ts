@@ -13,7 +13,6 @@ export interface IEntry extends Document {
 const entrySchema: Schema<IEntry> = new mongoose.Schema<IEntry>({
   title: {
     type: String,
-    required: true,
   },
   text: {
     type: String,
@@ -42,7 +41,7 @@ export function validateEntry(entry: {
   commentDisabled: boolean;
 }): Joi.ValidationResult {
   const schema = Joi.object({
-    title: Joi.string().min(3).max(255).required(),
+    title: Joi.string().min(3).max(255),
     text: Joi.string().required(),
     commentDisabled: Joi.boolean(),
   });

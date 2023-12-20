@@ -4,47 +4,55 @@ import Entry, { IEntry, validateEntry } from "../models/Entry";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateEntryRights from "../middleware/validateEntryRights";
 import validateObjectId from "../middleware/validateObjectId";
+import Comment from "../models/Comment";
 
 const router = express.Router();
 
-// Test all filters and pagination
 async function getFilters(query: any): Promise<any> {
   // Sort order
   const { sortBy, sortOrder, timeFilter, authorId, searchText } = query;
   let sortOptions: any = {};
   if (sortBy) sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-  // Time filter
-  const now = new Date();
   const filter: FilterQuery<IEntry> = {};
-  switch (timeFilter) {
-    case "today":
-      filter.timestamp = {
-        $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-      };
-      break;
-    case "lastWeek":
-      filter.timestamp = {
-        $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-      };
-      break;
-    case "lastMonth":
-      filter.timestamp = {
-        $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
-      };
-      break;
-    case "lastYear":
-      filter.timestamp = {
-        $gte: new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()),
-      };
-      break;
+  // Time filter
+  if (timeFilter) {
+    const now = new Date();
+    switch (timeFilter) {
+      case "today":
+        filter.timestamp = {
+          $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+        };
+        break;
+      case "lastWeek":
+        filter.timestamp = {
+          $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+        };
+        break;
+      case "lastMonth":
+        filter.timestamp = {
+          $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
+        };
+        break;
+      case "lastYear":
+        filter.timestamp = {
+          $gte: new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()),
+        };
+        break;
+    }
   }
 
   // User filter
-  if (authorId) filter.userId = authorId;
+  if (authorId) filter.userId = authorId.toString();
 
   // Search text filter
-  if (searchText) filter.$text = { $search: searchText };
+  // if (searchText) {
+  //   filter.$or = [
+  //     { $text: { $search: searchText } },
+  //     { title: { $regex: searchText, $options: "i" } },
+  //     { text: { $regex: searchText, $options: "i" } },
+  //   ];
+  // }
 
   return { sortOptions, filter };
 }
@@ -118,6 +126,9 @@ router.put(
   [auth, validateEntryRights],
   async (req: Request, res: Response) => {
     try {
+      const { error } = validateEntry(req.body);
+      if (error) return res.status(400).send(error.details[0].message);
+
       const { title, text, commentDisabled } = req.body;
       const updatedEntry: IEntry | null = await Entry.findByIdAndUpdate(
         req.params.id,
@@ -192,8 +203,9 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const entry = await Entry.findByIdAndDelete(req.params.id);
-
       if (!entry) return res.status(404).send("Entry not found");
+
+      await Comment.deleteMany({ entryId: req.params.id });
 
       return res.status(200).send("Entry deleted successfully");
     } catch (error: any) {

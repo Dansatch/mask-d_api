@@ -3,6 +3,7 @@ import { Server } from "http";
 import request from "supertest";
 import User, { IUser } from "../../src/models/User";
 import mongoose from "mongoose";
+import Entry from "../../src/models/Entry";
 
 describe("/api/users", () => {
   let app: Server;
@@ -442,6 +443,7 @@ describe("/api/users", () => {
   describe("DELETE /delete-account", () => {
     let token: string;
     let password: string;
+    let userId: string;
 
     const exec = async () => {
       return await request(app)
@@ -458,6 +460,7 @@ describe("/api/users", () => {
 
       token = testUser.generateAuthToken();
       password = "correctPassword";
+      userId = testUser._id;
     });
 
     afterEach(async () => {
@@ -469,6 +472,26 @@ describe("/api/users", () => {
 
       expect(res.status).toBe(200);
       expect(res.text).toBe("User account deleted successfully");
+    });
+
+    it("should delete user's entries", async () => {
+      // Add entries
+      await Entry.insertMany([
+        {
+          text: "This is a new entry.",
+          userId,
+        },
+        {
+          text: "This is a new entry 2.",
+          userId,
+        },
+      ]);
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+
+      const entries = await Entry.find({ userId });
+      expect(entries).toHaveLength(0);
     });
 
     it("should return 404 if invalid password", async () => {
