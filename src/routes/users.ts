@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import _ from "lodash";
@@ -11,25 +11,28 @@ import Entry from "../models/Entry";
 const router = express.Router();
 
 async function getFilters(query: any): Promise<any> {
-  const { sortBy, sortOrder } = query;
+  const { sortBy, sortOrder, searchText } = query;
 
   let sortOptions: any = {};
   if (sortBy) sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-  return sortOptions;
+  const filter: FilterQuery<IUser> = {};
+  if (searchText) filter.username = { $regex: searchText, $options: "i" };
+
+  return { sortOptions, filter };
 }
 
 // Get to get all users
 router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
-    const sortOptions = await getFilters(req.query);
+    const { sortOptions, filter } = await getFilters(req.query);
 
     // Pagination data
     const page = parseInt(req.query.page as string) || 1; // Default page number is 1
     const pageSize = parseInt(req.query.pageSize as string) || 10; // Default page size is 10
     const skip = (page - 1) * pageSize;
 
-    const users = await User.find()
+    const users = await User.find(filter)
       .sort(sortOptions)
       .skip(skip)
       .limit(pageSize);

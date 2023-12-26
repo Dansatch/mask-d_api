@@ -39,7 +39,7 @@ describe("/api/users", () => {
           password: await bcrypt.hash("correctPassword", 10),
         },
         {
-          username: "sampleUsername3",
+          username: "sampleTEUsername3",
           password: await bcrypt.hash("correctPassword", 10),
         },
         {
@@ -56,7 +56,7 @@ describe("/api/users", () => {
           password: await bcrypt.hash("correctPassword", 10),
         },
         {
-          username: "sampleUsername7",
+          username: "sampleUsername7te",
           password: await bcrypt.hash("correctPassword", 10),
         },
         {
@@ -124,6 +124,15 @@ describe("/api/users", () => {
       expect(res.status).toBe(200);
       expect(res.body).toBeInstanceOf(Array);
       expect(res.body[0].username).toBe(users[5].username); // skip = (page - 1) * pageSize
+    });
+
+    it("should get users with searchText filter", async () => {
+      query = { searchText: "te" };
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(2);
+      expect(res.body[0].username).toBe("sampleTEUsername3"); // username inserted in beforeEach
     });
   });
 

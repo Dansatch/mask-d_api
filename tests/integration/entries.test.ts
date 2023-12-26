@@ -56,7 +56,7 @@ describe("/api/entries", () => {
         { title: "Entry4", text: "RandomText", userId: currentUser._id },
         {
           title: "Entry5",
-          text: "RandomText",
+          text: "RandomText2",
           userId: new mongoose.Types.ObjectId(),
           timestamp: new Date(Date.now() - 2 * 30 * 24 * 60 * 60 * 1000),
         },
@@ -140,14 +140,14 @@ describe("/api/entries", () => {
       expect(res.body[0].title).toBe("Entry4");
     });
 
-    // it("should get entries with searchText filter", async () => {
-    //   query = { searchText: "2" };
-    //   const res = await exec();
+    it("should get entries with searchText filter", async () => {
+      query = { searchText: "2" };
+      const res = await exec();
 
-    //   expect(res.status).toBe(200);
-    //   expect(res.body).toHaveLength(2);
-    //   expect(res.body[0].title).toBe("Entry2");
-    // });
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(3);
+      expect(res.body[0].title).toBe("Entry2");
+    });
   });
 
   describe("GET /:id", () => {

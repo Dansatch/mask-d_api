@@ -46,13 +46,12 @@ async function getFilters(query: any): Promise<any> {
   if (authorId) filter.userId = authorId.toString();
 
   // Search text filter
-  // if (searchText) {
-  //   filter.$or = [
-  //     { $text: { $search: searchText } },
-  //     { title: { $regex: searchText, $options: "i" } },
-  //     { text: { $regex: searchText, $options: "i" } },
-  //   ];
-  // }
+  if (searchText) {
+    filter.$or = [
+      { title: { $regex: searchText, $options: "i" } },
+      { text: { $regex: searchText, $options: "i" } },
+    ];
+  }
 
   return { sortOptions, filter };
 }
