@@ -3,6 +3,7 @@ import { FilterQuery } from "mongoose";
 import Notification, {
   INotification,
   NotificationType,
+  isValidNotificationType,
   validateNotification,
 } from "../models/Notification";
 import auth, { AuthRequest } from "../middleware/auth";
@@ -24,7 +25,12 @@ router.get(
       const { type } = req.query;
 
       const query: FilterQuery<INotification> = { recipientId };
-      if (type) query.type = type;
+      if (type) {
+        if (!isValidNotificationType(type))
+          return res.status(400).send("Invalid notification query type");
+
+        query.type = type;
+      }
 
       const notifications: INotification[] = await Notification.find(query);
       res.send(notifications);

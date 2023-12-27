@@ -72,7 +72,12 @@ describe("/api/notifications", () => {
       expect(response.body).toHaveLength(1);
     });
 
-    // Test for invalid queryType
+    it("should return error for invalid notification query type", async () => {
+      query = { type: "invalidType" };
+      const response = await exec();
+
+      expect(response.status).toBe(400);
+    });
   });
 
   describe("POST /", () => {

@@ -52,4 +52,8 @@ export function validateNotification(notification: {
   return schema.validate(notification);
 }
 
+export function isValidNotificationType(value: any): value is NotificationType {
+  return value === "newEntry" || value === "followAlert" || value === "other";
+}
+
 export default Notification;
