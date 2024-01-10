@@ -33,63 +33,78 @@ describe("/api/users", () => {
         {
           username: "sampleUsername1",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername2",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleTEUsername3",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername4",
           password: await bcrypt.hash("correctPassword", 10),
           followers: [new mongoose.Types.ObjectId().toHexString()],
+          isPrivate: false,
         },
         {
           username: "sampleUsername5",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername6",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername7te",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername8",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername9",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername10",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername11",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername12",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername13",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername14",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
         {
           username: "sampleUsername15",
           password: await bcrypt.hash("correctPassword", 10),
+          isPrivate: false,
         },
       ]);
 
@@ -124,6 +139,22 @@ describe("/api/users", () => {
       expect(res.status).toBe(200);
       expect(res.body).toBeInstanceOf(Array);
       expect(res.body[0].username).toBe(users[5].username); // skip = (page - 1) * pageSize
+    });
+
+    it("should not return private users", async () => {
+      query = {};
+
+      // Set user to private
+      await User.findOneAndUpdate(
+        { username: users[0].username },
+        { isPrivate: true }
+      );
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toBeInstanceOf(Array);
+      expect(res.body[0].username).not.toBe(users[0].username);
     });
 
     it("should get users with searchText filter", async () => {
@@ -300,6 +331,89 @@ describe("/api/users", () => {
       payload = {
         currentPassword: "oldPassword",
         newPassword: "newPassword123",
+      };
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+      expect(res.text).toBe("User not found");
+    });
+  });
+
+  describe("PUT /update-privacy", () => {
+    let token: string;
+    let currentUserId: string;
+    let payload: any;
+
+    const exec = async () => {
+      return await request(app)
+        .put(`/api/users/update-privacy`)
+        .send(payload)
+        .set("x-auth-token", token);
+    };
+
+    beforeEach(async () => {
+      const testUser = await User.create({
+        username: "testUser",
+        password: await bcrypt.hash("oldPassword", 10),
+        isPrivate: false,
+      });
+
+      token = testUser.generateAuthToken();
+      currentUserId = testUser._id;
+
+      await Entry.insertMany([
+        {
+          title: "To not die",
+          text: "Gibberish",
+          userId: currentUserId,
+          isPrivate: false,
+        },
+        {
+          title: "ORV",
+          text: "Gibberish",
+          userId: currentUserId,
+          isPrivate: false,
+        },
+        {
+          title: "The world after the end",
+          text: "Gibberish",
+          userId: currentUserId,
+          isPrivate: false,
+        },
+      ]);
+    });
+
+    afterEach(async () => {
+      await User.deleteMany({});
+    });
+
+    it("should update user privacy", async () => {
+      payload = {
+        isPrivate: true,
+      };
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.text).toBe("User privacy updated successfully");
+
+      // Check if the user privacy is updated
+      const updatedUser = await User.findById(currentUserId);
+      expect(updatedUser?.isPrivate).toBe(true);
+
+      // Check if user entries' privacy is updated
+      const updatedEntries = await Entry.find({ userId: currentUserId });
+      updatedEntries.forEach((entry) => {
+        expect(entry.isPrivate).toBe(true);
+      });
+    });
+
+    it("should handle user not found", async () => {
+      await User.deleteMany({});
+
+      payload = {
+        isPrivate: true,
       };
 
       const res = await exec();

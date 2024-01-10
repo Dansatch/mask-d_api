@@ -105,11 +105,11 @@ describe("/api/entries", () => {
     });
 
     it("should get entries without any filters or pagination", async () => {
-      const response = await exec();
+      const res = await exec();
 
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body[0].title).toBe("Entry1"); // 1st entry in array
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body[0].title).toBe("Entry1"); // 1st entry in array
     });
 
     it("should get entries with sorting and pagination", async () => {
@@ -138,6 +138,30 @@ describe("/api/entries", () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveLength(2);
       expect(res.body[0].title).toBe("Entry4");
+    });
+
+    it("should not get entries with privacy filter", async () => {
+      query = {};
+      await Entry.findOneAndUpdate({ title: "Entry1" }, { isPrivate: true });
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body[0].title).not.toBe("Entry1");
+    });
+
+    it("should get entries with privacy filter if author is current user", async () => {
+      query = { authorId: currentUserId.toString() };
+      await Entry.findOneAndUpdate(
+        { title: "Entry1" },
+        { isPrivate: true, userId: currentUserId }
+      );
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body[0].title).toBe("Entry1");
+      expect(res.body).toHaveLength(3);
     });
 
     it("should get entries with searchText filter", async () => {

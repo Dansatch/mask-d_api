@@ -6,6 +6,7 @@ export interface IEntry extends Document {
   text: string;
   userId: mongoose.Types.ObjectId;
   commentDisabled: boolean;
+  isPrivate: boolean; // denormalized from user schema
   timestamp: Date;
   likes: mongoose.Types.ObjectId[];
 }
@@ -24,6 +25,10 @@ const entrySchema: Schema<IEntry> = new mongoose.Schema<IEntry>({
     required: true,
   },
   commentDisabled: {
+    type: Boolean,
+    default: false,
+  },
+  isPrivate: {
     type: Boolean,
     default: false,
   },

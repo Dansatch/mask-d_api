@@ -16,7 +16,7 @@ async function getFilters(query: any): Promise<any> {
   let sortOptions: any = {};
   if (sortBy) sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-  const filter: FilterQuery<IUser> = {};
+  const filter: FilterQuery<IUser> = { isPrivate: false }; // Default privacy filter
   if (searchText) filter.username = { $regex: searchText, $options: "i" };
 
   return { sortOptions, filter };
@@ -71,7 +71,9 @@ router.post("/", async (req: Request, res: Response) => {
     if (existingUser) return res.status(400).send("Username already exists.");
 
     // Create new user
-    const newUser: IUser = new User(_.pick(req.body, ["username", "password"]));
+    const newUser: IUser = new User(
+      _.pick(req.body, ["username", "password", "isPrivate"])
+    );
 
     const salt = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(newUser.password, salt);
@@ -119,6 +121,29 @@ router.put(
     }
   }
 );
+
+// PUT route to update user's privacy
+router.put("/update-privacy", auth, async (req: AuthRequest, res: Response) => {
+  try {
+    // Update user object
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user?._id,
+      { isPrivate: req.body.isPrivate },
+      { new: true }
+    );
+    if (!updatedUser) return res.status(404).send("User not found");
+
+    // Update user entries
+    await Entry.updateMany(
+      { userId: updatedUser._id },
+      { isPrivate: req.body.isPrivate }
+    );
+
+    res.status(200).send("User privacy updated successfully");
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+});
 
 // Put to follow a user
 router.put(

@@ -1,14 +1,15 @@
 import express, { Request, Response } from "express";
 import mongoose, { FilterQuery } from "mongoose";
 import Entry, { IEntry, validateEntry } from "../models/Entry";
+import Comment from "../models/Comment";
+import User from "../models/User";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateEntryRights from "../middleware/validateEntryRights";
 import validateObjectId from "../middleware/validateObjectId";
-import Comment from "../models/Comment";
 
 const router = express.Router();
 
-async function getFilters(query: any): Promise<any> {
+async function getFilters(query: any, currentUserId: string): Promise<any> {
   // Sort order
   const { sortBy, sortOrder, timeFilter, authorId, searchText } = query;
   let sortOptions: any = {};
@@ -45,6 +46,11 @@ async function getFilters(query: any): Promise<any> {
   // User filter
   if (authorId) filter.userId = authorId.toString();
 
+  // Privacy filter
+  if (authorId && currentUserId === authorId.toString()) {
+    // Do nothing
+  } else filter.isPrivate = false;
+
   // Search text filter
   if (searchText) {
     filter.$or = [
@@ -57,10 +63,13 @@ async function getFilters(query: any): Promise<any> {
 }
 
 // GET route to get entries
-router.get("/", auth, async (req: Request, res: Response) => {
+router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
     // Filter data
-    const { sortOptions, filter } = await getFilters(req.query);
+    const { sortOptions, filter } = await getFilters(
+      req.query,
+      req.user?._id || ""
+    );
 
     // Pagination data
     const page = parseInt(req.query.page as string) || 1; // Default page number is 1
@@ -100,18 +109,18 @@ router.post("/", auth, async (req: AuthRequest, res: Response) => {
     const { error } = validateEntry(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const { title, text, commentDisabled } = req.body;
-    const userId: any = new mongoose.Types.ObjectId(req.user?._id); // refactor the type
+    const user = await User.findById(req.user?._id);
+    if (!user) return res.status(400).send("User not found");
 
-    const entryData: Partial<IEntry> = {
+    const { title, text, commentDisabled } = req.body;
+
+    const newEntry: IEntry = await Entry.create({
       title,
       text,
-      userId,
+      userId: user._id,
       commentDisabled,
-    };
-
-    const newEntry: IEntry = new Entry(entryData);
-    await newEntry.save();
+      isPrivate: user.isPrivate,
+    });
 
     res.status(201).send(newEntry);
   } catch (error: any) {
