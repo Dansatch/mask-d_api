@@ -91,10 +91,17 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
 router.get(
   "/:id",
   [auth, validateObjectId],
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const entry: IEntry | null = await Entry.findById(req.params.id);
       if (!entry) return res.status(404).send("Entry not found");
+
+      // Privacy checks
+      if (
+        entry.isPrivate &&
+        entry.userId.toString() !== req.user?._id.toString()
+      )
+        return res.status(403).send("This is a private entry");
 
       res.send(entry);
     } catch (error: any) {
