@@ -303,7 +303,7 @@ describe("/api/users", () => {
 
     it("should update user password", async () => {
       payload = {
-        currentPassword: "oldPassword",
+        oldPassword: "oldPassword",
         newPassword: "newPassword123",
       };
 
@@ -315,21 +315,21 @@ describe("/api/users", () => {
 
     it("should return 400 if current password is invalid", async () => {
       payload = {
-        currentPassword: "invalidPassword",
+        oldPassword: "invalidPassword",
         newPassword: "newPassword123",
       };
 
       const res = await exec();
 
       expect(res.status).toBe(400);
-      expect(res.text).toBe("Invalid current password");
+      expect(res.text).toBe("Invalid old password");
     });
 
     it("should handle user not found", async () => {
       await User.deleteMany({});
 
       payload = {
-        currentPassword: "oldPassword",
+        oldPassword: "oldPassword",
         newPassword: "newPassword123",
       };
 

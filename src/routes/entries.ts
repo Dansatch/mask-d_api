@@ -87,6 +87,39 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET route to get user's most liked entries
+router.get(
+  "/user-most-liked",
+  auth,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?._id;
+
+      // Set default entries count
+      let { count } = req.query;
+      let entryCount = Number(count);
+      if (!count) entryCount = 3; // default value
+
+      const topEntries: IEntry[] = await Entry.aggregate()
+        .match({ userId: new mongoose.Types.ObjectId(userId) })
+        .project({
+          _id: 1,
+          title: 1,
+          text: 1,
+          userId: 1,
+          likes: 1,
+          likeCount: { $size: "$likes" },
+        })
+        .sort({ likeCount: -1 })
+        .limit(entryCount);
+
+      res.send(topEntries);
+    } catch (error: any) {
+      res.status(500).send(error.message);
+    }
+  }
+);
+
 // GET route to get an entry
 router.get(
   "/:id",

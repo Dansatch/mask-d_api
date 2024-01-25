@@ -174,6 +174,167 @@ describe("/api/entries", () => {
     });
   });
 
+  describe("GET /user-most-liked", () => {
+    let token: string;
+    let currentUserId: string;
+    let query: any;
+
+    const exec = async () => {
+      return await request(app)
+        .get(`/api/entries/user-most-liked`)
+        .query(query)
+        .set("x-auth-token", token);
+    };
+
+    beforeEach(async () => {
+      const currentUser = await User.create({
+        username: "currentUsername",
+        password: "password123",
+      });
+      currentUserId = currentUser._id;
+      token = currentUser.generateAuthToken();
+
+      await Entry.insertMany([
+        {
+          title: "Entry1",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [new mongoose.Types.ObjectId()],
+        },
+        {
+          title: "Entry2",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()],
+        },
+        {
+          title: "Entry3",
+          text: "RandomText",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        { title: "Entry4", text: "RandomText", userId: currentUserId },
+        {
+          title: "Entry5",
+          text: "RandomText2",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        {
+          title: "Entry6",
+          text: "RandomText",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        {
+          title: "Entry7",
+          text: "RandomText",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        {
+          title: "Entry8",
+          text: "RandomText",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        {
+          title: "Entry9",
+          text: "RandomText",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        {
+          title: "Entry10",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [
+            new mongoose.Types.ObjectId(),
+            new mongoose.Types.ObjectId(),
+            new mongoose.Types.ObjectId(),
+            new mongoose.Types.ObjectId(),
+          ],
+        },
+      ]);
+    });
+
+    afterEach(async () => {
+      await User.deleteMany({});
+      await Entry.deleteMany({});
+    });
+
+    it("should get user's top 3 entries by default", async () => {
+      query = {};
+      
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(3);
+      expect(res.body[0].title).toBe("Entry10"); // Most liked user's entry
+    });
+
+    it("should get user's top entries based on query parameters", async () => {
+      query = { count: 4 };
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(4);
+    });
+
+    it("should return sorted entries when likeCount is the same", async () => {
+      query = {};
+      
+      await Entry.deleteMany({});
+      await Entry.insertMany([
+        {
+          title: "Entry1",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [],
+        },
+        {
+          title: "Entry2",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [],
+        },
+        {
+          title: "Entry3",
+          text: "RandomText",
+          userId: new mongoose.Types.ObjectId(),
+        },
+        {
+          title: "Entry4",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [],
+        },
+        {
+          title: "Entry5",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [],
+        },
+        {
+          title: "Entry10",
+          text: "RandomText",
+          userId: currentUserId,
+          likes: [],
+        },
+      ]);
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(3);
+      expect(res.body[0].title).toBe("Entry1");
+    });
+
+    it("should return an empty array when user has no entry", async () => {
+      await Entry.deleteMany({});
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(0);
+    });
+  });
+
   describe("GET /:id", () => {
     let token: string;
     let entryId: string;

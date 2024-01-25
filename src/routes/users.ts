@@ -101,11 +101,10 @@ router.put(
 
       // Validate current password from req.body
       const validPassword = await bcrypt.compare(
-        req.body.currentPassword,
+        req.body.oldPassword,
         user.password
       );
-      if (!validPassword)
-        return res.status(400).send("Invalid current password");
+      if (!validPassword) return res.status(400).send("Invalid old password");
 
       // Hash the new password
       const salt = await bcrypt.genSalt(10);

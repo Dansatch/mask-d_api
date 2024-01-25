@@ -3,5 +3,5 @@ export default {
   preset: "ts-jest",
   testEnvironment: "node",
   detectOpenHandles: true,
-  testMatch: ["<rootDir>/tests/integration/users.test.ts"],
+  testMatch: ["<rootDir>/tests/integration/entries.test.ts"],
 };
