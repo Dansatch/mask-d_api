@@ -81,7 +81,19 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
       .sort(sortOptions)
       .skip(skip)
       .limit(pageSize);
-    res.send(entries);
+
+    // Count total number of entries (for calculating total pages)
+    const totalEntriesCount = await Entry.countDocuments(filter);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalEntriesCount / pageSize);
+
+    // Send paginated response
+    res.send({
+      data: entries,
+      page,
+      totalPages,
+    });
   } catch (error: any) {
     res.status(500).send(error.message);
   }

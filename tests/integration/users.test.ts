@@ -119,8 +119,8 @@ describe("/api/users", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toBeInstanceOf(Array);
-      expect(res.body).toHaveLength(10);
+      expect(res.body.data).toBeInstanceOf(Array);
+      expect(res.body.data).toHaveLength(10);
     });
 
     it("should get a list of users sorted by a specific field in ascending order", async () => {
@@ -128,8 +128,8 @@ describe("/api/users", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toBeInstanceOf(Array);
-      expect(res.body[0].username).toBe("sampleUsername4"); // Has 1 follower in beforeEach
+      expect(res.body.data).toBeInstanceOf(Array);
+      expect(res.body.data[0].username).toBe("sampleUsername4"); // Has 1 follower in beforeEach
     });
 
     it("should get a list of users with custom pagination settings", async () => {
@@ -137,8 +137,8 @@ describe("/api/users", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toBeInstanceOf(Array);
-      expect(res.body[0].username).toBe(users[5].username); // skip = (page - 1) * pageSize
+      expect(res.body.data).toBeInstanceOf(Array);
+      expect(res.body.data[0].username).toBe(users[5].username); // skip = (page - 1) * pageSize
     });
 
     it("should not return private users", async () => {
@@ -153,8 +153,8 @@ describe("/api/users", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toBeInstanceOf(Array);
-      expect(res.body[0].username).not.toBe(users[0].username);
+      expect(res.body.data).toBeInstanceOf(Array);
+      expect(res.body.data[0].username).not.toBe(users[0].username);
     });
 
     it("should get users with searchText filter", async () => {
@@ -162,8 +162,8 @@ describe("/api/users", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(2);
-      expect(res.body[0].username).toBe("sampleTEUsername3"); // username inserted in beforeEach
+      expect(res.body.data).toHaveLength(2);
+      expect(res.body.data[0].username).toBe("sampleTEUsername3"); // username inserted in beforeEach
     });
   });
 

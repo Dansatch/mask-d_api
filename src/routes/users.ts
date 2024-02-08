@@ -37,7 +37,18 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
       .skip(skip)
       .limit(pageSize);
 
-    res.send(users);
+    // Count total number of users (for calculating total pages)
+    const totalUsersCount = await User.countDocuments(filter);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalUsersCount / pageSize);
+
+    // Send paginated response
+    res.send({
+      data: users,
+      page,
+      totalPages,
+    });
   } catch (error: any) {
     res.status(500).send(error.message);
   }

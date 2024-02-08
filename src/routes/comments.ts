@@ -13,9 +13,34 @@ router.get("/:entryId", [auth], async (req: Request, res: Response) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.entryId))
       return res.status(400).send("Invalid entry ID.");
 
-    const comments: IComment[] = await Comment.find({
+    // Pagination data
+    const page = parseInt(req.query.page as string) || 1; // Default page number is 1
+    const pageSize = parseInt(req.query.pageSize as string) || 10; // Default page size is 10
+    const skip = (page - 1) * pageSize;
+
+    const filter = {
       entryId: req.params.entryId,
-    }).sort({ likes: -1 });
+    };
+
+    // Get comments (sorted by likes)
+    const comments: IComment[] = await Comment.find(filter)
+      .sort({ likes: -1 })
+      .skip(skip)
+      .limit(pageSize);
+
+    // Count total number of comments (for calculating total pages)
+    const totalCommentsCount = await Comment.countDocuments(filter);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCommentsCount / pageSize);
+
+    // Send paginated response
+    res.send({
+      data: comments,
+      page,
+      totalPages,
+    });
+
     res.send(comments);
   } catch (error: any) {
     res.status(500).send(error.message);

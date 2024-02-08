@@ -1,6 +1,6 @@
 import { Server } from "http";
 import request from "supertest";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import Comment, { IComment } from "../../src/models/Comment";
 import User from "../../src/models/User";
 
@@ -18,10 +18,12 @@ describe("/api/comments", () => {
   describe("GET /:entryId", () => {
     let token: string;
     let entryId: string;
+    let query: any;
 
     const exec = async () => {
       return await request(app)
         .get(`/api/comments/${entryId}`)
+        .query(query)
         .set("x-auth-token", token);
     };
 
@@ -45,6 +47,56 @@ describe("/api/comments", () => {
           entryId,
           userId: currentUser._id,
         },
+        {
+          text: "Comment3",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment4",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment5",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment6",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment7",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment8",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment9",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment10",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment11",
+          entryId,
+          userId: currentUser._id,
+        },
+        {
+          text: "Comment12",
+          entryId,
+          userId: currentUser._id,
+        },
       ]);
     });
 
@@ -53,11 +105,21 @@ describe("/api/comments", () => {
       await Comment.deleteMany({});
     });
 
-    it("should get all comments under an entry by ID", async () => {
-      const response = await exec();
+    it("should get a list of comments with default pagination", async () => {
+      const res = await exec();
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveLength(2);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(10);
+    });
+
+    it("should get a list of comments with custom pagination settings", async () => {
+      query = { page: 2, pageSize: 5 };
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeInstanceOf(Array);
+      expect(res.body.page).toBe(2);
+      expect(res.body.totalPages).toBe(3);
     });
 
     it("should return 404 if entry ID is invalid", async () => {

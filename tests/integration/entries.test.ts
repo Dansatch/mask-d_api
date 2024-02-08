@@ -108,8 +108,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body[0].title).toBe("Entry1"); // 1st entry in array
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data[0].title).toBe("Entry1"); // 1st entry in array
     });
 
     it("should get entries with sorting and pagination", async () => {
@@ -118,8 +118,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body[0].title).toBe("Entry8"); // has most likes
-      expect(res.body).toHaveLength(6);
+      expect(res.body.data[0].title).toBe("Entry8"); // has most likes
+      expect(res.body.data).toHaveLength(6);
     });
 
     it("should get entries with time filters", async () => {
@@ -128,7 +128,7 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(8);
+      expect(res.body.data).toHaveLength(8);
     });
 
     it("should get entries with authorId filter", async () => {
@@ -136,8 +136,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(2);
-      expect(res.body[0].title).toBe("Entry4");
+      expect(res.body.data).toHaveLength(2);
+      expect(res.body.data[0].title).toBe("Entry4");
     });
 
     it("should not get entries with privacy filter", async () => {
@@ -147,7 +147,7 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body[0].title).not.toBe("Entry1");
+      expect(res.body.data[0].title).not.toBe("Entry1");
     });
 
     it("should get entries with privacy filter if author is current user", async () => {
@@ -160,8 +160,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body[0].title).toBe("Entry1");
-      expect(res.body).toHaveLength(3);
+      expect(res.body.data[0].title).toBe("Entry1");
+      expect(res.body.data).toHaveLength(3);
     });
 
     it("should get entries with searchText filter", async () => {
@@ -169,8 +169,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(3);
-      expect(res.body[0].title).toBe("Entry2");
+      expect(res.body.data).toHaveLength(3);
+      expect(res.body.data[0].title).toBe("Entry2");
     });
   });
 
@@ -259,7 +259,7 @@ describe("/api/entries", () => {
 
     it("should get user's top 3 entries by default", async () => {
       query = {};
-      
+
       const res = await exec();
 
       expect(res.status).toBe(200);
@@ -278,7 +278,7 @@ describe("/api/entries", () => {
 
     it("should return sorted entries when likeCount is the same", async () => {
       query = {};
-      
+
       await Entry.deleteMany({});
       await Entry.insertMany([
         {
