@@ -22,7 +22,6 @@ async function getFilters(query: any): Promise<any> {
   return { sortOptions, filter };
 }
 
-// consider removing password from user object
 // Get to get all users
 router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
@@ -34,6 +33,7 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
     const skip = (page - 1) * pageSize;
 
     const users = await User.find(filter)
+      .select("-password")
       .sort(sortOptions)
       .skip(skip)
       .limit(pageSize);
@@ -58,11 +58,14 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
 // Get to get user data from id or username
 router.get("/:id", [auth], async (req: AuthRequest, res: Response) => {
   try {
-    let user: IUser | null;
+    let user: Partial<IUser> | null;
 
     if (mongoose.Types.ObjectId.isValid(req.params.id))
-      user = await User.findById(req.params.id);
-    else user = await User.where({ username: req.params.id }).findOne();
+      user = await User.findById(req.params.id).select("-password");
+    else
+      user = await User.where({ username: req.params.id })
+        .findOne()
+        .select("-password");
 
     if (!user) return res.status(404).send("The user was not found.");
 
@@ -82,20 +85,24 @@ router.post("/", async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ username: req.body.username });
     if (existingUser) return res.status(400).send("Username already exists.");
 
-    // Create new user
-    const newUser: IUser = new User(
-      _.pick(req.body, ["username", "password", "isPrivate"])
+    const newPassword = await bcrypt.hash(
+      req.body.password,
+      await bcrypt.genSalt(10)
     );
 
-    const salt = await bcrypt.genSalt(10);
-    newUser.password = await bcrypt.hash(newUser.password, salt);
-
-    await newUser.save();
+    // Create new user
+    const newUser = await User.create({
+      username: req.body.username,
+      password: newPassword,
+      isPrivate: req.body.isPrivate,
+    });
 
     const token = newUser.generateAuthToken();
+    const { password, ...newUserWithoutPassword } = newUser.toObject();
+
     res
       .cookie("xAuthToken", token, { httpOnly: true })
-      .send(_.pick(newUser, ["_id", "username"]));
+      .send(newUserWithoutPassword);
   } catch (error: any) {
     res.status(500).send(error.message);
   }
@@ -181,7 +188,7 @@ router.put(
       await currentUser.save();
       await userToFollow.save();
 
-      res.status(200).send(currentUser);
+      res.status(200).send("User followed successfully");
     } catch (error: any) {
       res.status(500).send(error.message);
     }
@@ -217,7 +224,7 @@ router.put(
       await currentUser.save();
       await userToUnfollow.save();
 
-      res.status(200).send(currentUser);
+      res.status(200).send("User unfollowed successfully");
     } catch (error: any) {
       res.status(500).send(error.message);
     }

@@ -25,7 +25,7 @@ describe("/api/users", () => {
       return await request(app)
         .get(`/api/users`)
         .query(query)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -121,6 +121,7 @@ describe("/api/users", () => {
       expect(res.status).toBe(200);
       expect(res.body.data).toBeInstanceOf(Array);
       expect(res.body.data).toHaveLength(10);
+      expect(res.body.data[0]).not.toHaveProperty("password");
     });
 
     it("should get a list of users sorted by a specific field in ascending order", async () => {
@@ -175,7 +176,7 @@ describe("/api/users", () => {
     const exec = async () => {
       return await request(app)
         .get(`/api/users/${identifier}`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -203,7 +204,6 @@ describe("/api/users", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.username).toBe(users[1].username);
-      expect(res.body.password).toBe(users[1].password);
     });
 
     it("should get user data by username", async () => {
@@ -212,7 +212,6 @@ describe("/api/users", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.username).toBe(users[1].username);
-      expect(res.body.password).toBe(users[1].password);
     });
 
     it("should return 404 if no user found", async () => {
@@ -244,7 +243,7 @@ describe("/api/users", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.header["x-auth-token"]).toBeDefined();
+      expect(res.header["set-cookie"]).toBeDefined();
       expect(res.body).toHaveProperty("_id");
       expect(res.body).toHaveProperty("username", "testUser");
     });
@@ -285,7 +284,7 @@ describe("/api/users", () => {
       return await request(app)
         .put(`/api/users/update-password`)
         .send(payload)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -349,7 +348,7 @@ describe("/api/users", () => {
       return await request(app)
         .put(`/api/users/update-privacy`)
         .send(payload)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -431,7 +430,7 @@ describe("/api/users", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/users/${userIdToFollow}/follow`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -497,7 +496,7 @@ describe("/api/users", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/users/${userIdToUnfollow}/unfollow`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -571,7 +570,7 @@ describe("/api/users", () => {
     const exec = async () => {
       return await request(app)
         .delete(`/api/users/delete-account`)
-        .set("x-auth-token", token)
+        .set("Cookie", [`xAuthToken=${token}`])
         .send({ password });
     };
 
