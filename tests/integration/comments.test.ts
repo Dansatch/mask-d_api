@@ -24,7 +24,7 @@ describe("/api/comments", () => {
       return await request(app)
         .get(`/api/comments/${entryId}`)
         .query(query)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -138,7 +138,7 @@ describe("/api/comments", () => {
     const exec = async () => {
       return await request(app)
         .get(`/api/comments/${entryId}/count`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -192,7 +192,7 @@ describe("/api/comments", () => {
     const exec = async () => {
       return await request(app)
         .post(`/api/comments/`)
-        .set("x-auth-token", token)
+        .set("Cookie", [`xAuthToken=${token}`])
         .send(payload);
     };
 
@@ -242,7 +242,7 @@ describe("/api/comments", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/comments/${commentId}`)
-        .set("x-auth-token", token)
+        .set("Cookie", [`xAuthToken=${token}`])
         .send(payload);
     };
 
@@ -297,7 +297,7 @@ describe("/api/comments", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/comments/${commentId}/like`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -353,7 +353,7 @@ describe("/api/comments", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/comments/${commentId}/unlike`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -410,7 +410,7 @@ describe("/api/comments", () => {
     const exec = async () => {
       return await request(app)
         .delete(`/api/comments/${commentId}`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {

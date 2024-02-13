@@ -26,7 +26,7 @@ describe("/api/entries", () => {
       return await request(app)
         .get(`/api/entries`)
         .query(query)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -183,7 +183,7 @@ describe("/api/entries", () => {
       return await request(app)
         .get(`/api/entries/user-most-liked`)
         .query(query)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -342,7 +342,7 @@ describe("/api/entries", () => {
     const exec = async () => {
       return await request(app)
         .get(`/api/entries/${entryId}`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -387,7 +387,7 @@ describe("/api/entries", () => {
     const exec = async () => {
       return await request(app)
         .post(`/api/entries/`)
-        .set("x-auth-token", token)
+        .set("Cookie", [`xAuthToken=${token}`])
         .send(payload);
     };
 
@@ -439,7 +439,7 @@ describe("/api/entries", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/entries/${entryId}`)
-        .set("x-auth-token", token)
+        .set("Cookie", [`xAuthToken=${token}`])
         .send(payload);
     };
 
@@ -505,7 +505,7 @@ describe("/api/entries", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/entries/${entryId}/like`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -562,7 +562,7 @@ describe("/api/entries", () => {
     const exec = async () => {
       return await request(app)
         .put(`/api/entries/${entryId}/unlike`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -620,7 +620,7 @@ describe("/api/entries", () => {
     const exec = async () => {
       return await request(app)
         .delete(`/api/entries/${entryId}`)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {

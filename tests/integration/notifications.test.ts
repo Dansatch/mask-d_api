@@ -23,7 +23,7 @@ describe("/api/notifications", () => {
       return await request(app)
         .get(`/api/notifications`)
         .query(query)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
@@ -127,7 +127,7 @@ describe("/api/notifications", () => {
       return await request(app)
         .delete(`/api/notifications`)
         .query(query)
-        .set("x-auth-token", token);
+        .set("Cookie", [`xAuthToken=${token}`]);
     };
 
     beforeEach(async () => {
