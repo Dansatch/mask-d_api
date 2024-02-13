@@ -5,7 +5,7 @@ import config from "config";
 const dbUrl: string = process.env.DB_URL || config.get("db");
 const developmentEnv: (string | undefined)[] = ["development", undefined];
 
-const dbConnect = (): void => {
+const setupDb = (): void => {
   mongoose.connect(dbUrl).then(() => {
     if (developmentEnv.includes(process.env.NODE_ENV)) {
       logger.info(`Connected to ${dbUrl}...`);
@@ -13,4 +13,4 @@ const dbConnect = (): void => {
   });
 };
 
-export { dbUrl, dbConnect };
+export default setupDb;

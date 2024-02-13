@@ -19,8 +19,10 @@ describe("auth middleware", () => {
     const user: Partial<IUser> = {
       _id: new mongoose.Types.ObjectId().toHexString(),
     };
-    const req: Partial<Request> = {
-      header: jest.fn().mockReturnValue(new User(user).generateAuthToken()),
+    const req: Partial<AuthRequest> = {
+      cookies: {
+        xAuthToken: new User(user).generateAuthToken(),
+      },
     };
 
     auth(req as Request, res as Response, next);
@@ -31,7 +33,7 @@ describe("auth middleware", () => {
 
   it("should return 401 for no token", () => {
     const req: Partial<Request> = {
-      header: jest.fn().mockReturnValue(undefined),
+      cookies: {},
     };
 
     auth(req as Request, res as Response, next);
@@ -41,8 +43,10 @@ describe("auth middleware", () => {
   });
 
   it("should return 400 for an invalid token", () => {
-    const req: Partial<Request> = {
-      header: jest.fn().mockReturnValue("invalid-token"),
+    const req: Partial<AuthRequest> = {
+      cookies: {
+        xAuthToken: "invalid-token",
+      },
     };
 
     auth(req as Request, res as Response, next);

@@ -22,6 +22,7 @@ async function getFilters(query: any): Promise<any> {
   return { sortOptions, filter };
 }
 
+// consider removing password from user object
 // Get to get all users
 router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
@@ -93,7 +94,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     const token = newUser.generateAuthToken();
     res
-      .header("x-auth-token", token)
+      .cookie("xAuthToken", token, { httpOnly: true })
       .send(_.pick(newUser, ["_id", "username"]));
   } catch (error: any) {
     res.status(500).send(error.message);
