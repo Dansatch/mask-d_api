@@ -30,9 +30,13 @@ describe("/api/entries", () => {
     };
 
     beforeEach(async () => {
+      const followingUserId = new mongoose.Types.ObjectId();
+      const followingUser2Id = new mongoose.Types.ObjectId();
+
       const currentUser = await User.create({
         username: "currentUsername",
         password: "password123",
+        following: [followingUserId, followingUser2Id],
       });
       currentUserId = currentUser._id;
       token = currentUser.generateAuthToken();
@@ -46,7 +50,7 @@ describe("/api/entries", () => {
         {
           title: "Entry2",
           text: "RandomText",
-          userId: new mongoose.Types.ObjectId(),
+          userId: followingUserId,
         },
         {
           title: "Entry3",
@@ -57,7 +61,7 @@ describe("/api/entries", () => {
         {
           title: "Entry5",
           text: "RandomText2",
-          userId: new mongoose.Types.ObjectId(),
+          userId: followingUserId,
           timestamp: new Date(Date.now() - 2 * 30 * 24 * 60 * 60 * 1000),
         },
         {
@@ -89,7 +93,7 @@ describe("/api/entries", () => {
         {
           title: "Entry11",
           text: "RandomText",
-          userId: new mongoose.Types.ObjectId(),
+          userId: followingUser2Id,
         },
         {
           title: "Entry12",
@@ -138,6 +142,15 @@ describe("/api/entries", () => {
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
       expect(res.body.data[0].title).toBe("Entry4");
+    });
+
+    it("should get entries with following filter", async () => {
+      query = { followingOnly: 1 };
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(3);
+      expect(res.body.data[0].title).toBe("Entry2");
     });
 
     it("should not get entries with privacy filter", async () => {
@@ -263,8 +276,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(3);
-      expect(res.body[0].title).toBe("Entry10"); // Most liked user's entry
+      expect(res.body.data).toHaveLength(3);
+      expect(res.body.data[0].title).toBe("Entry10"); // Most liked user's entry
     });
 
     it("should get user's top entries based on query parameters", async () => {
@@ -273,7 +286,7 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(4);
+      expect(res.body.data).toHaveLength(4);
     });
 
     it("should return sorted entries when likeCount is the same", async () => {
@@ -321,8 +334,8 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(3);
-      expect(res.body[0].title).toBe("Entry1");
+      expect(res.body.data).toHaveLength(3);
+      expect(res.body.data[0].title).toBe("Entry1");
     });
 
     it("should return an empty array when user has no entry", async () => {
@@ -331,7 +344,7 @@ describe("/api/entries", () => {
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveLength(0);
+      expect(res.body.data).toHaveLength(0);
     });
   });
 

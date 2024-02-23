@@ -11,7 +11,7 @@ const router = express.Router();
 
 async function getFilters(query: any, currentUserId: string): Promise<any> {
   // Sort order
-  const { sortOption, timeFilter, authorId, searchText } = query;
+  const { sortOption, timeFilter, authorId, followingOnly, searchText } = query;
 
   const filter: FilterQuery<IEntry> = {};
   // Time filter
@@ -43,6 +43,13 @@ async function getFilters(query: any, currentUserId: string): Promise<any> {
 
   // User filter
   if (authorId) filter.userId = authorId.toString();
+
+  // Following filter using 0 and 1
+  if (Number(followingOnly)) {
+    const currentUser = await User.findById(currentUserId);
+    const following = currentUser?.following || [];
+    filter.userId = { $in: [...following.map((user) => user._id)] };
+  }
 
   // Privacy filter
   if (authorId && currentUserId === authorId.toString()) {
