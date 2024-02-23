@@ -98,7 +98,7 @@ router.post("/", async (req: Request, res: Response) => {
     const { password, ...newUserWithoutPassword } = newUser.toObject();
 
     res
-      .cookie("xAuthToken", token, { httpOnly: true })
+      .cookie("xAuthToken", token, { httpOnly: true, maxAge: 7200000 }) // 2hrs
       .send(newUserWithoutPassword);
   } catch (error: any) {
     res.status(500).send(error.message);

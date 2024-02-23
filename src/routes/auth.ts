@@ -36,7 +36,10 @@ router.post("/", async (req: Request, res: Response) => {
 
   const { password, ...userWithoutPassword } = user.toObject();
   res
-    .cookie("xAuthToken", token, { httpOnly: true })
+    .cookie("xAuthToken", token, {
+      httpOnly: true,
+      maxAge: req.body.rememberMe ? 1209600000 : 7200000,
+    }) // 14days || 2hrs
     .send({ user: userWithoutPassword });
 });
 
@@ -49,6 +52,7 @@ function validate(req: any) {
   const schema = Joi.object({
     username: Joi.string().required(),
     password: Joi.string().required(),
+    rememberMe: Joi.boolean(),
   });
 
   return schema.validate(req);
