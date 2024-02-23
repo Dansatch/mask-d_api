@@ -50,10 +50,10 @@ router.get("/:entryId", [auth], async (req: Request, res: Response) => {
 // GET to get commentCount
 router.get("/:entryId/count", auth, async (req: Request, res: Response) => {
   try {
-    const commentCount: number = await Comment.countDocuments({
+    const count: number = await Comment.countDocuments({
       entryId: req.params.entryId,
     });
-    res.json({ commentCount });
+    res.json({ count });
   } catch (error: any) {
     res.status(500).send(error.message);
   }

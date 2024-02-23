@@ -113,7 +113,7 @@ describe("/api/entries", () => {
     });
 
     it("should get entries with sorting and pagination", async () => {
-      query = { sortBy: "likes", sortOrder: "desc", page: 1, pageSize: 6 };
+      query = { sortOption: "-likes", page: 1, pageSize: 6 }; // descending order
 
       const res = await exec();
 

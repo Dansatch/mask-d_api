@@ -12,7 +12,7 @@ const router = express.Router();
 
 // GET query interface
 interface RequestQuery {
-  type?: NotificationType;
+  types?: NotificationType[];
 }
 
 // GET route to get all notifications for a particular user with type filter
@@ -22,14 +22,17 @@ router.get(
   async (req: AuthRequest & { query: RequestQuery }, res: Response) => {
     try {
       const recipientId = req.user?._id;
-      const { type } = req.query;
+      const { types } = req.query;
 
       const query: FilterQuery<INotification> = { recipientId };
-      if (type) {
-        if (!isValidNotificationType(type))
-          return res.status(400).send("Invalid notification query type");
+      if (types) {
+        const typesArray = Array.isArray(types) ? types : [types];
+        for (const t of typesArray) {
+          if (!isValidNotificationType(t))
+            return res.status(400).send("Invalid notification query type");
 
-        query.type = type;
+          query.type = { $in: types };
+        }
       }
 
       const notifications: INotification[] = await Notification.find(query);

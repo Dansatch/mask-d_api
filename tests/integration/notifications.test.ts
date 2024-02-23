@@ -65,7 +65,7 @@ describe("/api/notifications", () => {
     });
 
     it("should get notifications for a user with a specific type", async () => {
-      query = { type: "followAlert" };
+      query = { types: ["followAlert"] };
       const response = await exec();
 
       expect(response.status).toBe(200);
@@ -73,7 +73,7 @@ describe("/api/notifications", () => {
     });
 
     it("should return error for invalid notification query type", async () => {
-      query = { type: "invalidType" };
+      query = { types: ["invalidType"] };
       const response = await exec();
 
       expect(response.status).toBe(400);

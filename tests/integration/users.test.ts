@@ -125,7 +125,7 @@ describe("/api/users", () => {
     });
 
     it("should get a list of users sorted by a specific field in ascending order", async () => {
-      query = { sortBy: "followers", sortOrder: "desc" };
+      query = { sortOption: "-followers" }; // followers in descending order
       const res = await exec();
 
       expect(res.status).toBe(200);

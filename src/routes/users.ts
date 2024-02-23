@@ -11,21 +11,18 @@ import Entry from "../models/Entry";
 const router = express.Router();
 
 async function getFilters(query: any): Promise<any> {
-  const { sortBy, sortOrder, searchText } = query;
-
-  let sortOptions: any = {};
-  if (sortBy) sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
+  const { sortOption, searchText } = query;
 
   const filter: FilterQuery<IUser> = { isPrivate: false }; // Default privacy filter
   if (searchText) filter.username = { $regex: searchText, $options: "i" };
 
-  return { sortOptions, filter };
+  return { sortOption, filter };
 }
 
 // Get to get all users
 router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
-    const { sortOptions, filter } = await getFilters(req.query);
+    const { sortOption, filter } = await getFilters(req.query);
 
     // Pagination data
     const page = parseInt(req.query.page as string) || 1; // Default page number is 1
@@ -34,7 +31,7 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
 
     const users = await User.find(filter)
       .select("-password")
-      .sort(sortOptions)
+      .sort(sortOption)
       .skip(skip)
       .limit(pageSize);
 
@@ -188,7 +185,9 @@ router.put(
       await currentUser.save();
       await userToFollow.save();
 
-      res.status(200).send("User followed successfully");
+      const { password, ...currentUserWithoutPassword } =
+        currentUser.toObject();
+      res.status(200).send(currentUserWithoutPassword);
     } catch (error: any) {
       res.status(500).send(error.message);
     }
@@ -224,7 +223,9 @@ router.put(
       await currentUser.save();
       await userToUnfollow.save();
 
-      res.status(200).send("User unfollowed successfully");
+      const { password, ...currentUserWithoutPassword } =
+        currentUser.toObject();
+      res.status(200).send(currentUserWithoutPassword);
     } catch (error: any) {
       res.status(500).send(error.message);
     }

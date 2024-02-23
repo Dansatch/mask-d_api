@@ -11,9 +11,7 @@ const router = express.Router();
 
 async function getFilters(query: any, currentUserId: string): Promise<any> {
   // Sort order
-  const { sortBy, sortOrder, timeFilter, authorId, searchText } = query;
-  let sortOptions: any = {};
-  if (sortBy) sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
+  const { sortOption, timeFilter, authorId, searchText } = query;
 
   const filter: FilterQuery<IEntry> = {};
   // Time filter
@@ -59,14 +57,14 @@ async function getFilters(query: any, currentUserId: string): Promise<any> {
     ];
   }
 
-  return { sortOptions, filter };
+  return { sortOption, filter };
 }
 
 // GET route to get entries
 router.get("/", auth, async (req: AuthRequest, res: Response) => {
   try {
     // Filter data
-    const { sortOptions, filter } = await getFilters(
+    const { sortOption, filter } = await getFilters(
       req.query,
       req.user?._id || ""
     );
@@ -78,7 +76,7 @@ router.get("/", auth, async (req: AuthRequest, res: Response) => {
 
     // Get entries
     const entries: IEntry[] = await Entry.find(filter)
-      .sort(sortOptions)
+      .sort(sortOption)
       .skip(skip)
       .limit(pageSize);
 
@@ -125,7 +123,12 @@ router.get(
         .sort({ likeCount: -1 })
         .limit(entryCount);
 
-      res.send(topEntries);
+      // To refactor page and totalPages fields
+      res.send({
+        data: topEntries,
+        page: 1,
+        totalPages: 1,
+      });
     } catch (error: any) {
       res.status(500).send(error.message);
     }

@@ -173,7 +173,7 @@ describe("/api/comments", () => {
       const response = await exec();
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("commentCount");
+      expect(response.body).toHaveProperty("count");
     });
 
     it("should return 500 if entry ID is invalid", async () => {
