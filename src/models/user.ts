@@ -1,7 +1,7 @@
 import Joi from "joi";
 import mongoose, { Schema, Document, Model } from "mongoose";
-import config from "config";
 import jwt from "jsonwebtoken";
+import getEnv from "../utils/getEnv";
 
 export interface IUser extends Document {
   username: string;
@@ -37,7 +37,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema<IUser>({
 });
 
 userSchema.methods.generateAuthToken = function (this: IUser): string {
-  return jwt.sign({ _id: this._id }, config.get("jwtPrivateKey"));
+  return jwt.sign({ _id: this._id }, getEnv().jwtPrivateKey);
 };
 
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);

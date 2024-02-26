@@ -1,9 +1,9 @@
-import config from "config";
 import request from "supertest";
 import { Server } from "http";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../../src/models/User";
+import getEnv from "../../src/utils/getEnv";
 
 describe("/api/auth", () => {
   let server: Server;
@@ -27,7 +27,7 @@ describe("/api/auth", () => {
 
     it("should return true if a valid JWT token is present in the cookie", async () => {
       // Create a valid token
-      token = jwt.sign({ _id: "user_id" }, config.get<string>("jwtPrivateKey"));
+      token = jwt.sign({ _id: "user_id" }, getEnv().jwtPrivateKey);
 
       const res = await exec();
 

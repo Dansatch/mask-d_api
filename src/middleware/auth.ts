@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import config from "config";
+import getEnv from "../utils/getEnv";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -17,7 +17,7 @@ function auth(
   if (!token) return res.status(401).send("Access denied, no token provided");
 
   try {
-    const decoded = jwt.verify(token, config.get<string>("jwtPrivateKey"));
+    const decoded = jwt.verify(token, getEnv().jwtPrivateKey);
     req.user = decoded as { _id: string };
     next();
   } catch (error) {

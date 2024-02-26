@@ -2,9 +2,9 @@ import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import config from "config";
 import User from "../models/User";
 import auth from "../middleware/auth";
+import getEnv from "../utils/getEnv";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.get("/check-login", (req: Request, res: Response) => {
     const token = req.cookies.xAuthToken;
     if (!token) throw new Error(); // to return false in catch
 
-    jwt.verify(token, config.get<string>("jwtPrivateKey"));
+    jwt.verify(token, getEnv().jwtPrivateKey);
 
     res.json(true);
   } catch (error) {

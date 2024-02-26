@@ -1,7 +1,7 @@
-import config from "config";
+import getEnv from "../utils/getEnv";
 
 export default function checkJwtPrivateKey(): void {
-  if (!config.get<string>("jwtPrivateKey")) {
+  if (!getEnv().jwtPrivateKey) {
     throw new Error("FATAL ERROR: JWTPrivateKey is not defined");
   }
 }

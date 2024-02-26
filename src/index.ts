@@ -4,27 +4,27 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { Express } from "express";
-import config from "config";
 import { log, logger } from "./startup/logging";
 import setupDb from "./startup/db";
 import setupCors from "./startup/cors";
 import setupRoutes from "./startup/routes";
-import setupConfig from "./startup/config";
+import setupJwt from "./startup/jwt";
 import setupValidation from "./startup/validation";
 import setupProd from "./startup/prod";
 import setupCookies from "./startup/cookies";
+import getEnv from "./utils/getEnv";
 
 const app: Express = express();
+setupJwt();
 log();
 setupDb();
 setupCors(app);
 setupCookies(app);
 setupRoutes(app);
-setupConfig();
 setupValidation();
 setupProd(app);
 
-const port: number | string = process.env.PORT || config.get("port");
+const port: number | string = getEnv().port;
 const developmentEnv: (string | undefined)[] = ["development", undefined];
 
 const server = app.listen(port, () => {
