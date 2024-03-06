@@ -21,5 +21,5 @@ RUN npm run build
 # Expose port on which the server will run
 EXPOSE 4001
 
-# Command to run the application
-CMD ["npm", "start"]
+# Specify the entrypoint script as the entrypoint
+CMD ["./docker-entrypoint.sh"]
