@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { Server } from "http";
 import request from "supertest";
-import User, { IUser } from "../../src/models/Usere";
+import User, { IUser } from "../../src/models/User";
+import Entry from "../../src/models/Entry";
 import mongoose from "mongoose";
-import Entry from "../../src/models/Entrye";
 
 describe("/api/users", () => {
   let app: Server;

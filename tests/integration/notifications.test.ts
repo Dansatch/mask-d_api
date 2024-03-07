@@ -1,8 +1,8 @@
 import { Server } from "http";
 import request from "supertest";
 import mongoose from "mongoose";
-import Notification, { INotification } from "../../src/models/Notificatione";
-import User from "../../src/models/Usere";
+import Notification, { INotification } from "../../src/models/Notification";
+import User from "../../src/models/User";
 
 describe("/api/notifications", () => {
   let app: Server;
