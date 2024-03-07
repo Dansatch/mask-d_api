@@ -2,7 +2,7 @@ import request from "supertest";
 import { Server } from "http";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import User from "../../src/models/User";
+import User from "../../src/models/Usere";
 import getEnv from "../../src/utils/getEnv";
 
 describe("/api/auth", () => {

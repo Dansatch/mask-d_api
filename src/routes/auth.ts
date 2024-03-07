@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import User from "../models/Usere";
 import auth from "../middleware/auth";
 import getEnv from "../utils/getEnv";
 

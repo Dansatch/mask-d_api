@@ -1,9 +1,9 @@
 import { Server } from "http";
 import request from "supertest";
 import mongoose from "mongoose";
-import Entry, { IEntry } from "../../src/models/Entry";
-import Comment from "../../src/models/Comment";
-import User from "../../src/models/User";
+import Entry, { IEntry } from "../../src/models/Entrye";
+import Comment from "../../src/models/Commente";
+import User from "../../src/models/Usere";
 
 describe("/api/entries", () => {
   let app: Server;

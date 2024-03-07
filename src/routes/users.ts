@@ -3,10 +3,10 @@ import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import _ from "lodash";
 
-import User, { IUser, validateUser } from "../models/User";
+import User, { IUser, validateUser } from "../models/Usere";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateObjectId from "../middleware/validateObjectId";
-import Entry from "../models/Entry";
+import Entry from "../models/Entrye";
 
 const router = express.Router();
 

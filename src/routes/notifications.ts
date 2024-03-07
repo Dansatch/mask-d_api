@@ -5,7 +5,7 @@ import Notification, {
   NotificationType,
   isValidNotificationType,
   validateNotification,
-} from "../models/Notification";
+} from "../models/Notificatione";
 import auth, { AuthRequest } from "../middleware/auth";
 
 const router = express.Router();

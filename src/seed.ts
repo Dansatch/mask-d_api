@@ -2,10 +2,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { connect, disconnect } from "mongoose";
-import User from "./models/User";
-import Entry from "./models/Entry";
-import Comment from "./models/Comment";
-import Notification from "./models/Notification";
+import User from "./models/Usere";
+import Entry from "./models/Entrye";
+import Comment from "./models/Commente";
+import Notification from "./models/Notificatione";
 import users from "./seed-data/users";
 import entries from "./seed-data/entries";
 import comments from "./seed-data/comments";

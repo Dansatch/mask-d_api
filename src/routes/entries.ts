@@ -1,8 +1,8 @@
 import express, { Request, Response } from "express";
 import mongoose, { FilterQuery } from "mongoose";
-import Entry, { IEntry, validateEntry } from "../models/Entry";
-import Comment from "../models/Comment";
-import User from "../models/User";
+import Entry, { IEntry, validateEntry } from "../models/Entrye";
+import Comment from "../models/Commente";
+import User from "../models/Usere";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateEntryRights from "../middleware/validateEntryRights";
 import validateObjectId from "../middleware/validateObjectId";
