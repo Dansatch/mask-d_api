@@ -8,7 +8,11 @@ export default () => {
   );
 
   const dbUrl = String(
-    nodeEnv === "test" ? process.env.TEST_DB_URL : process.env.DB_URL
+    nodeEnv === "test"
+      ? process.env.TEST_DB_URL
+      : nodeEnv === "production"
+      ? process.env.PROD_DB_URL
+      : process.env.DB_URL
   );
 
   const port = Number(process.env.PORT);
