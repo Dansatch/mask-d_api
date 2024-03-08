@@ -17,5 +17,9 @@ export default () => {
 
   const port = Number(process.env.PORT);
 
-  return { jwtPrivateKey, dbUrl, port };
+  const webUrl = String(
+    nodeEnv === "production" ? process.env.PROD_WEB_URL : process.env.WEB_URL
+  );
+
+  return { jwtPrivateKey, dbUrl, port, webUrl };
 };

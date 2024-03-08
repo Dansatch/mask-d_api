@@ -35,11 +35,15 @@ router.post("/", async (req: Request, res: Response) => {
   const token = user.generateAuthToken();
 
   const { password, ...userWithoutPassword } = user.toObject();
+  const secure = getEnv().webUrl.startsWith("https://");
+
   res
     .cookie("xAuthToken", token, {
       httpOnly: true,
-      maxAge: req.body.rememberMe ? 1209600000 : 7200000,
-    }) // 14days || 2hrs
+      secure, // Dynamic secure flag based on webUrl
+      sameSite: secure ? "none" : "strict", // to edit
+      maxAge: req.body.rememberMe ? 1209600000 : 7200000, // 14days || 2hrs
+    })
     .send({ user: userWithoutPassword });
 });
 

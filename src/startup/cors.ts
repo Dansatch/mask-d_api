@@ -1,10 +1,11 @@
 import cors from "cors";
 import { Express } from "express";
+import getEnv from "../utils/getEnv";
 
 export default function setupCors(app: Express): void {
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: getEnv().webUrl,
       credentials: true,
     })
   );

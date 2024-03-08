@@ -7,6 +7,7 @@ import User, { IUser, validateUser } from "../models/User";
 import auth, { AuthRequest } from "../middleware/auth";
 import validateObjectId from "../middleware/validateObjectId";
 import Entry from "../models/Entry";
+import getEnv from "../utils/getEnv";
 
 const router = express.Router();
 
@@ -97,8 +98,14 @@ router.post("/", async (req: Request, res: Response) => {
     const token = newUser.generateAuthToken();
     const { password, ...newUserWithoutPassword } = newUser.toObject();
 
+    const secure = getEnv().webUrl.startsWith("https://"); // dynamic secure flag
     res
-      .cookie("xAuthToken", token, { httpOnly: true, maxAge: 7200000 }) // 2hrs
+      .cookie("xAuthToken", token, {
+        httpOnly: true,
+        secure,
+        sameSite: secure ? "none" : "strict", // to edit
+        maxAge: 7200000,
+      }) // 2hrs
       .send(newUserWithoutPassword);
   } catch (error: any) {
     res.status(500).send(error.message);
