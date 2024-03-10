@@ -19,24 +19,42 @@ async function getFilters(query: any, currentUserId: string): Promise<any> {
     const now = new Date();
     switch (timeFilter) {
       case "today":
+        const todayStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - 1
+        );
         filter.timestamp = {
-          $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+          $gte: todayStart,
+          $lt: now,
         };
         break;
       case "lastWeek":
+        const lastWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const lastWeekEnd = now;
         filter.timestamp = {
-          $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+          $gte: lastWeekStart,
+          $lt: lastWeekEnd,
         };
         break;
       case "lastMonth":
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1);
+        const lastMonthEnd = now;
         filter.timestamp = {
-          $gte: new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
+          $gte: lastMonthStart,
+          $lt: lastMonthEnd,
         };
         break;
       case "lastYear":
+        const lastYearStart = new Date(now.getFullYear() - 1);
+        const lastYearEnd = now;
         filter.timestamp = {
-          $gte: new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()),
+          $gte: lastYearStart,
+          $lt: lastYearEnd,
         };
+        break;
+      case "allTime":
+        filter.timestamp = { $lt: now };
         break;
     }
   }
