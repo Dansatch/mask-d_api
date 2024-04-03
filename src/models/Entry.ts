@@ -41,12 +41,12 @@ entrySchema.index({ title: "text", text: "text" }); // Text index for close matc
 const Entry: Model<IEntry> = mongoose.model<IEntry>("Entry", entrySchema);
 
 export function validateEntry(entry: {
-  title: string;
+  title?: string;
   text: string;
   commentDisabled: boolean;
 }): Joi.ValidationResult {
   const schema = Joi.object({
-    title: Joi.string().min(3).max(255),
+    title: Joi.string().allow(""),
     text: Joi.string().required(),
     commentDisabled: Joi.boolean(),
   });
