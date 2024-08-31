@@ -103,7 +103,7 @@ router.post("/", async (req: Request, res: Response) => {
       .cookie("xAuthToken", token, {
         httpOnly: true,
         secure,
-        sameSite: secure ? "none" : "strict", // to edit
+        sameSite: secure ? "none" : "strict", // api and web on different domains when deployed
         maxAge: 7200000,
       }) // 2hrs
       .send(newUserWithoutPassword);

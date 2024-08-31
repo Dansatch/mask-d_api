@@ -32,14 +32,20 @@ router.post("/", async (req: Request, res: Response) => {
     .cookie("xAuthToken", token, {
       httpOnly: true,
       secure, // Dynamic secure flag based on webUrl
-      sameSite: secure ? "none" : "strict", // to edit
+      sameSite: secure ? "none" : "strict", // api and web on different domains when deployed
       maxAge: req.body.rememberMe ? 1209600000 : 7200000, // 14days || 2hrs
     })
     .send({ user: userWithoutPassword });
 });
 
 router.post("/logout", auth, (req: Request, res: Response) => {
-  res.clearCookie("xAuthToken"); // Clear the cookie
+  const secure = getEnv().webUrl.startsWith("https://");
+
+  res.clearCookie("xAuthToken", {
+    secure,
+    sameSite: secure ? "none" : "strict", // api and web on different domains when deployed
+    path: "/",
+  });
   res.sendStatus(200);
 });
 
