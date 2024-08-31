@@ -1,9 +1,7 @@
 import request from "supertest";
 import { Server } from "http";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../../src/models/User";
-import getEnv from "../../src/utils/getEnv";
 
 describe("/api/auth", () => {
   let server: Server;
@@ -25,34 +23,30 @@ describe("/api/auth", () => {
         .set("Cookie", [`xAuthToken=${token}`]);
     };
 
-    it("should return true if a valid JWT token is present in the cookie", async () => {
-      // Create a valid token
-      token = jwt.sign({ _id: "user_id" }, getEnv().jwtPrivateKey);
+    it("should return user data if a valid token is present in the cookie", async () => {
+      // Create a user and token
+      const user = await User.create({
+        username: "user1",
+        password: "password123",
+      });
+      token = user.generateAuthToken();
 
       const res = await exec();
 
       expect(res.status).toBe(200);
-      expect(res.body).toBe(true);
+      expect(res.body.username).toBe("user1");
     });
 
-    it("should return false if no JWT token is present in the cookie", async () => {
-      // Send request without a token in the cookie
-      token = "";
-      const res = await exec();
+    it("should return error if token is invalid", async () => {
+      token = ""; //empty token
+      let res = await exec();
+      expect(res.status).toBe(401);
+      expect(res.text).toBe("Access denied, no token provided");
 
-      expect(res.status).toBe(200);
-      expect(res.body).toBe(false);
-    });
-
-    it("should return false if the JWT token in the cookie is invalid", async () => {
-      // Create an invalid token (expired or tampered)
-      token = "invalidToken";
-
-      // Send request with an invalid token in the cookie
-      const res = await exec();
-
-      expect(res.status).toBe(200);
-      expect(res.body).toBe(false);
+      token = "invalidToken"; //invalid token
+      res = await exec();
+      expect(res.status).toBe(400);
+      expect(res.text).toBe("Invalid token");
     });
   });
 

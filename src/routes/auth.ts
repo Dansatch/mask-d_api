@@ -1,24 +1,15 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import Joi from "joi";
-import jwt from "jsonwebtoken";
 import User from "../models/User";
-import auth from "../middleware/auth";
+import auth, { AuthRequest } from "../middleware/auth";
 import getEnv from "../utils/getEnv";
 
 const router = express.Router();
 
-router.get("/check-login", (req: Request, res: Response) => {
-  try {
-    const token = req.cookies.xAuthToken;
-    if (!token) throw new Error(); // to return false in catch
-
-    jwt.verify(token, getEnv().jwtPrivateKey);
-
-    res.json(true);
-  } catch (error) {
-    return res.json(false);
-  }
+router.get("/check-login", auth, async (req: AuthRequest, res: Response) => {
+  const user = await User.findById(req.user?._id).select("-password");
+  return res.send(user);
 });
 
 router.post("/", async (req: Request, res: Response) => {
