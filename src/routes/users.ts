@@ -90,7 +90,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Create new user
     const newUser = await User.create({
-      username: req.body.username,
+      username: req.body.username.toLowerCase(),
       password: newPassword,
       isPrivate: req.body.isPrivate,
     });

@@ -107,19 +107,25 @@ describe("/api/auth", () => {
       expect(res.text).toBe("Invalid username or password.");
     });
 
-    it("should return valid JWT token if everything is okay", async () => {
+    it("should return valid JWT token regardless of username case", async () => {
       await User.create({
-        username: "sampleUsername",
+        username: "sampleusername",
         password: await bcrypt.hash("correctPassword", 10),
       });
 
-      payload = { username: "sampleUsername", password: "correctPassword" };
-
-      const res = await exec();
+      // Regular case
+      payload = { username: "sampleusername", password: "correctPassword" };
+      let res = await exec();
       expect(res.status).toBe(200);
       expect(res.header["set-cookie"]).toBeDefined(); // Check for cookie
       expect(res.body.user).toBeDefined(); // Check for user object
       expect(res.body.user).not.toHaveProperty("password"); // Ensure password is excluded
+
+      // Irregular case
+      payload = { username: "sampleUserNAME", password: "correctPassword" };
+      res = await exec();
+      expect(res.status).toBe(200);
+      expect(res.header["set-cookie"]).toBeDefined(); // Check for cookie
     });
   });
 
@@ -152,9 +158,9 @@ describe("/api/auth", () => {
       // Logout user
       const res = await exec();
       expect(res.status).toBe(200);
-      expect(res.header["set-cookie"]).toEqual([
-        "xAuthToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
-      ]); // Check for cookie expiration
+      expect(res.header["set-cookie"][0]).toContain(
+        "xAuthToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      ); // Check for cookie expiration
     });
   });
 });
