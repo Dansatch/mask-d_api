@@ -4,7 +4,6 @@ import "express-async-errors";
 const logger: Logger = winston.createLogger({
   transports: [
     new winston.transports.Console({ format: winston.format.colorize() }),
-    new winston.transports.File({ filename: "logfile.log" }),
   ],
 });
 

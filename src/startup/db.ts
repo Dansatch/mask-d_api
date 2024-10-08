@@ -10,7 +10,7 @@ const developmentEnv: (string | undefined)[] = ["development", undefined];
 const setupDb = (): void => {
   mongoose.connect(dbUrl).then(() => {
     if (developmentEnv.includes(nodeEnv)) {
-      logger.info(`Connected to ${dbUrl}...`);
+      logger.info(`Connected to DB...`);
     }
   });
 };
